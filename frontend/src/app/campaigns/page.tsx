@@ -12,7 +12,7 @@ export default function CampaignsHub() {
   const [ws, setWs] = useState<WebSocket | null>(null)
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/campaigns")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/campaigns`)
       .then(res => res.json())
       .then(data => {
         setCampaigns(data.campaigns || [])
@@ -30,7 +30,7 @@ export default function CampaignsHub() {
     setLiveMetrics(null)
     
     // Fetch initial state
-    fetch(`http://127.0.0.1:8000/api/campaigns/${id}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/campaigns/${id}`)
       .then(res => {
         if (!res.ok) throw new Error("Not found")
         return res.json()

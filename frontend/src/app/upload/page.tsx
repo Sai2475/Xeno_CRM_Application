@@ -18,7 +18,7 @@ export default function UploadPage() {
   const fetchStats = async () => {
     setLoadingStats(true)
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/customers/stats")
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/customers/stats`)
       const data = await res.json()
       setStats(data)
     } catch (e) {
@@ -45,7 +45,7 @@ export default function UploadPage() {
     formData.append("file", file)
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/customers/upload", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"}/customers/upload`, {
         method: "POST",
         body: formData
       })

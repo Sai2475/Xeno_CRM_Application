@@ -8,3 +8,4 @@ python-dotenv==1.2.2
 websockets==16.0
 httpx==0.28.1
 pydantic==2.13.4
+python-multipart==0.0.32

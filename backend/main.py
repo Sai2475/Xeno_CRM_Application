@@ -486,7 +486,7 @@ async def list_campaigns():
             "channel": c.get("channel", "unknown"),
             "status": c.get("status", "unknown"),
             "customer_count": c.get("customer_count", 0),
-            "created_at": c.get("created_at")
+            "created_at": c.get("created_at").isoformat() + "Z" if isinstance(c.get("created_at"), datetime) else c.get("created_at")
         })
     return {"campaigns": result}
 

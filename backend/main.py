@@ -6,6 +6,8 @@ import uuid
 import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
+from pydantic import BaseModel
+from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from backend import models as models
@@ -408,7 +410,6 @@ async def send_campaign(request: models.LaunchCampaignRequest, background_tasks:
 
     return {"status": "started", "campaign_id": campaign_id, "customer_count": len(customers)}
 
-from bson import ObjectId
 
 # Webhook Handler with Idempotency
 @app.post("/api/receipt")

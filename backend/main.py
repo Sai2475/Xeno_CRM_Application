@@ -8,9 +8,9 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Any
 from motor.motor_asyncio import AsyncIOMotorClient
 
-import models as models
-import database as db
-import ai_service as ai
+from backend import models as models
+from backend import database as db
+from backend import ai_service as ai
 
 app = FastAPI(title="Xeno AI Command Center")
 

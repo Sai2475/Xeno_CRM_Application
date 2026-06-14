@@ -14,6 +14,14 @@ from backend import ai_service as ai
 
 app = FastAPI(title="Xeno AI Command Center")
 
+@app.get("/api/test-db")
+async def test_db():
+    try:
+        await db.command("ping")
+        return {"status": "connected"}
+    except Exception as e:
+        return {"status": "error", "message": str(e), "uri": db.client.options.pool_options.max_pool_size}
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

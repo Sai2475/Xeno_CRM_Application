@@ -2,7 +2,7 @@ import os
 from motor.motor_asyncio import AsyncIOMotorClient
 import certifi
 
-MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
+MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017").strip()
 DB_NAME = "xeno_crm"
 
 client = AsyncIOMotorClient(MONGODB_URI, tlsCAFile=certifi.where())

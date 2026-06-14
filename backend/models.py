@@ -23,9 +23,16 @@ class CustomerModel(BaseModel):
     email: str
     phone: str
     name: str
-    last_purchase_date: Optional[str] = None
-    total_spent: float
-    purchase_count: int
+    membership_type: str = "Basic"
+    join_date: Optional[str] = None
+    last_visit_date: Optional[str] = None
+    classes_attended: int = 0
+    favorite_class: Optional[str] = None
+    cancellations: int = 0
+    total_spent: float = 0.0
+    purchase_count: int = 0
+    membership_expiry_date: Optional[str] = None
+    churn_risk_score: int = 0
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class CampaignModel(BaseModel):
@@ -36,6 +43,13 @@ class CampaignModel(BaseModel):
     message_id: Optional[str] = None
     channel: str # sms, email, web_push
     status: str # draft, scheduled, sending, sent, completed
+    churn_risk_tier: Optional[str] = None
+    class_related: bool = False
+    membership_related: bool = False
+    stats: Dict[str, int] = {
+        "sent": 0, "delivered": 0, "opened": 0, "clicked": 0, "failed": 0, 
+        "class_attendance": 0, "members_renewed": 0
+    }
     total_count: int = 0
     created_by: str = "system"
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -81,3 +95,4 @@ class LaunchCampaignRequest(BaseModel):
     segment_query: Dict[str, Any]
     channel: str
     message_content: str
+    campaign_name: Optional[str] = "AI Generated Campaign"

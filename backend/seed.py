@@ -1,72 +1,99 @@
-from faker import Faker
+import asyncio
 import random
-import uuid
 from datetime import datetime, timedelta
+from faker import Faker
 import os
 import sys
 
-# Ensure backend module can be imported
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from backend.database import db, customers_table, orders_table, campaigns_table, communications_table
+from backend.database import customers_collection
 
 fake = Faker()
 
-def calculate_health_score(total_spend, days_since_last):
-    if days_since_last > 45 or total_spend < 1000:
-        return 'Red'
-    elif days_since_last > 20:
-        return 'Yellow'
-    return 'Green'
+def calculate_churn_risk(last_visit_date, cancellations, classes_attended, membership_expiry_date):
+    score = 0
+    now = datetime.utcnow()
+    
+    # last_visit_date logic
+    days_since_last_visit = (now - last_visit_date).days
+    if days_since_last_visit > 30:
+        score += 60
+    elif days_since_last_visit > 14:
+        score += 40
 
-def seed_database():
-    print("Clearing existing data...")
-    db.truncate()
+    # cancellations logic
+    if cancellations > 0:
+        score += 25
 
-    print("Seeding Customers and Orders...")
-    cities = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Pune', 'Chennai']
-    sources = ['Facebook', 'Instagram', 'Google Ads', 'Organic', 'Referral']
-    categories = ['Electronics', 'Apparel', 'Home Decor', 'Beauty', 'Accessories']
+    # classes attended declining logic (simulated)
+    if classes_attended < 5:
+        score += 30
 
-    for _ in range(500):
-        customer_id = str(uuid.uuid4())
-        num_orders = random.randint(1, 10)
-        total_spend = 0
-        last_purchase_date = None
+    # membership expiry logic
+    days_until_expiry = (membership_expiry_date - now).days
+    if days_until_expiry < 30:
+        score += 20
 
-        for _ in range(num_orders):
-            amount = round(random.uniform(200, 5000), 2)
-            total_spend += amount
-            purchase_date = fake.date_time_between(start_date='-60d', end_date='now').isoformat()
+    return min(score, 100)
+
+async def seed_database():
+    print("Clearing existing customers...")
+    await customers_collection.delete_many({})
+
+    print("Seeding 300 Gym Members...")
+    membership_types = ['Basic', 'Premium', 'VIP']
+    classes = ['Yoga', 'CrossFit', 'HIIT', 'Pilates', 'Zumba', 'Spin']
+
+    members = []
+    now = datetime.utcnow()
+
+    for _ in range(300):
+        membership_type = random.choice(membership_types)
+        join_date = fake.date_time_between(start_date='-2y', end_date='now')
+        
+        # Determine active vs inactive
+        is_inactive = random.random() < 0.2 # 20% churn risk
+        if is_inactive:
+            last_visit_date = fake.date_time_between(start_date='-90d', end_date='-15d')
+            cancellations = random.randint(1, 3)
+            classes_attended = random.randint(0, 4)
+        else:
+            last_visit_date = fake.date_time_between(start_date='-14d', end_date='now')
+            cancellations = 0
+            classes_attended = random.randint(10, 50)
+
+        favorite_class = random.choice(classes)
+        total_spent = round(random.uniform(200, 2500), 2)
+        purchase_count = random.randint(1, 24)
+        
+        # Membership expiry
+        membership_expiry_date = join_date + timedelta(days=365)
+        if membership_expiry_date < now:
+            membership_expiry_date = now + timedelta(days=random.randint(5, 180))
             
-            if not last_purchase_date or purchase_date > last_purchase_date:
-                last_purchase_date = purchase_date
+        churn_risk_score = calculate_churn_risk(
+            last_visit_date, cancellations, classes_attended, membership_expiry_date
+        )
 
-            orders_table.insert({
-                "order_id": str(uuid.uuid4()),
-                "customer_id": customer_id,
-                "amount": amount,
-                "category": random.choice(categories),
-                "purchase_date": purchase_date
-            })
-
-        days_since_last = (datetime.now() - datetime.fromisoformat(last_purchase_date)).days
-        health_score = calculate_health_score(total_spend, days_since_last)
-
-        customers_table.insert({
-            "id": customer_id,
-            "name": fake.name(),
+        members.append({
             "email": fake.email(),
             "phone": fake.phone_number(),
-            "city": random.choice(cities),
-            "age": random.randint(18, 65),
-            "gender": random.choice(['Male', 'Female']),
-            "acquisition_source": random.choice(sources),
-            "total_spend": total_spend,
-            "last_purchase_date": last_purchase_date,
-            "health_score": health_score
+            "name": fake.name(),
+            "membership_type": membership_type,
+            "join_date": join_date.isoformat(),
+            "last_visit_date": last_visit_date.isoformat(),
+            "classes_attended": classes_attended,
+            "favorite_class": favorite_class,
+            "cancellations": cancellations,
+            "total_spent": total_spent,
+            "purchase_count": purchase_count,
+            "membership_expiry_date": membership_expiry_date.isoformat(),
+            "churn_risk_score": churn_risk_score,
+            "created_at": join_date.isoformat()
         })
 
+    await customers_collection.insert_many(members)
     print("Seed completed successfully.")
 
 if __name__ == "__main__":
-    seed_database()
+    asyncio.run(seed_database())

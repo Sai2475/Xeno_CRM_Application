@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = "http://127.0.0.1:8000/api";
 
 export async function fetchDashboard() {
   const res = await fetch(`${API_BASE}/dashboard`);
@@ -23,7 +23,7 @@ export async function generateCampaign(objective: string) {
   return res.json();
 }
 
-export async function launchCampaign(segmentQuery: any, channel: string, messageContent: string) {
+export async function launchCampaign(segmentQuery: any, channel: string, messageContent: string, campaignName: string = "AI Generated Campaign") {
   const res = await fetch(`${API_BASE}/campaigns/send`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -31,7 +31,8 @@ export async function launchCampaign(segmentQuery: any, channel: string, message
       campaign_id: "new",
       segment_query: segmentQuery,
       channel: channel,
-      message_content: messageContent
+      message_content: messageContent,
+      campaign_name: campaignName
     }),
   });
   return res.json();

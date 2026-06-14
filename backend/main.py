@@ -358,12 +358,12 @@ async def send_campaign(request: models.LaunchCampaignRequest, background_tasks:
             
             # 1. Queue immediately in CRM DB
             queued_events.append({
-                "event_id": f"{campaign_id}_{customer_id}_queued",
+                "event_id": f"{campaign_id}_{customer_id}_sent",
                 "campaign_id": campaign_id,
                 "customer_id": customer_id,
                 "recipient": recipient,
                 "channel": request.channel,
-                "status": "queued",
+                "status": "sent",
                 "timestamp": datetime.utcnow()
             })
             
@@ -376,7 +376,8 @@ async def send_campaign(request: models.LaunchCampaignRequest, background_tasks:
                 "message": request.message_content
             }
             # Append post call to tasks list
-            tasks.append(client.post("http://localhost:8001/simulator/send", json=payload))
+            channel_url = os.environ.get("CHANNEL_SERVICE_URL", "http://localhost:8001").rstrip("/") + "/send"
+            tasks.append(client.post(channel_url, json=payload))
             
         if tasks:
             try:
@@ -387,12 +388,22 @@ async def send_campaign(request: models.LaunchCampaignRequest, background_tasks:
 
     if queued_events:
         await db.channel_events_collection.insert_many(queued_events)
+        await db.campaigns_collection.update_one(
+            {"_id": ObjectId(campaign_id)},
+            {"$inc": {"sent": len(customers)}}
+        )
+        await db.analytics_collection.update_one(
+            {"campaign_id": campaign_id, "metric": "sent"},
+            {"$inc": {"count": len(customers)}},
+            upsert=True
+        )
 
     return {"status": "started", "campaign_id": campaign_id, "customer_count": len(customers)}
 
 from bson import ObjectId
 
 # Webhook Handler with Idempotency
+@app.post("/api/receipt")
 async def process_channel_event(event_data: dict):
     # Check for duplicate event_id
     existing = await db.channel_events_collection.find_one({"event_id": event_data["event_id"]})

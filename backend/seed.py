@@ -1,14 +1,11 @@
 import asyncio
-import random
-from datetime import datetime, timedelta
-from faker import Faker
+import csv
 import os
 import sys
+from datetime import datetime
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from backend.database import customers_collection
-
-fake = Faker()
 
 def calculate_churn_risk(last_visit_date, cancellations, classes_attended, membership_expiry_date):
     score = 0
@@ -40,60 +37,50 @@ async def seed_database():
     print("Clearing existing customers...")
     await customers_collection.delete_many({})
 
-    print("Seeding 300 Gym Members...")
-    membership_types = ['Basic', 'Premium', 'VIP']
-    classes = ['Yoga', 'CrossFit', 'HIIT', 'Pilates', 'Zumba', 'Spin']
-
+    csv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'gym_customers_sample.csv'))
+    print(f"Seeding members from {csv_path}...")
+    
     members = []
-    now = datetime.utcnow()
+    
+    with open(csv_path, mode='r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                join_date = datetime.strptime(row['join_date'].strip(), '%d-%m-%Y')
+                last_visit_date = datetime.strptime(row['last_visit_date'].strip(), '%d-%m-%Y')
+                membership_expiry_date = datetime.strptime(row['membership_expiry_date'].strip(), '%d-%m-%Y')
+            except ValueError:
+                continue
 
-    for _ in range(300):
-        membership_type = random.choice(membership_types)
-        join_date = fake.date_time_between(start_date='-2y', end_date='now')
-        
-        # Determine active vs inactive
-        is_inactive = random.random() < 0.2 # 20% churn risk
-        if is_inactive:
-            last_visit_date = fake.date_time_between(start_date='-90d', end_date='-15d')
-            cancellations = random.randint(1, 3)
-            classes_attended = random.randint(0, 4)
-        else:
-            last_visit_date = fake.date_time_between(start_date='-14d', end_date='now')
-            cancellations = 0
-            classes_attended = random.randint(10, 50)
-
-        favorite_class = random.choice(classes)
-        total_spent = round(random.uniform(200, 2500), 2)
-        purchase_count = random.randint(1, 24)
-        
-        # Membership expiry
-        membership_expiry_date = join_date + timedelta(days=365)
-        if membership_expiry_date < now:
-            membership_expiry_date = now + timedelta(days=random.randint(5, 180))
+            cancellations = int(row['cancellations'])
+            classes_attended = int(row['classes_attended'])
             
-        churn_risk_score = calculate_churn_risk(
-            last_visit_date, cancellations, classes_attended, membership_expiry_date
-        )
+            churn_risk_score = calculate_churn_risk(
+                last_visit_date, cancellations, classes_attended, membership_expiry_date
+            )
 
-        members.append({
-            "email": fake.email(),
-            "phone": fake.phone_number(),
-            "name": fake.name(),
-            "membership_type": membership_type,
-            "join_date": join_date.isoformat(),
-            "last_visit_date": last_visit_date.isoformat(),
-            "classes_attended": classes_attended,
-            "favorite_class": favorite_class,
-            "cancellations": cancellations,
-            "total_spent": total_spent,
-            "purchase_count": purchase_count,
-            "membership_expiry_date": membership_expiry_date.isoformat(),
-            "churn_risk_score": churn_risk_score,
-            "created_at": join_date.isoformat()
-        })
+            members.append({
+                "email": row['email'],
+                "phone": row['phone'],
+                "name": row['name'],
+                "membership_type": row['membership_type'],
+                "join_date": join_date.isoformat(),
+                "last_visit_date": last_visit_date.isoformat(),
+                "classes_attended": classes_attended,
+                "favorite_class": row['favorite_class'],
+                "cancellations": cancellations,
+                "total_spent": float(row['total_spent']),
+                "purchase_count": int(row['purchase_count']),
+                "membership_expiry_date": membership_expiry_date.isoformat(),
+                "churn_risk_score": churn_risk_score,
+                "created_at": join_date.isoformat()
+            })
 
-    await customers_collection.insert_many(members)
-    print("Seed completed successfully.")
+    if members:
+        await customers_collection.insert_many(members)
+        print(f"Seed completed successfully with {len(members)} members.")
+    else:
+        print("No valid members found to seed.")
 
 if __name__ == "__main__":
     asyncio.run(seed_database())

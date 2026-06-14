@@ -20,7 +20,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden font-sans selection:bg-primary/30">
-      
+
       {/* Background Glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 flex items-center justify-center">
         <div className="absolute top-[-10%] w-[800px] h-[500px] bg-primary/20 rounded-full blur-[120px] opacity-50" />
@@ -49,13 +49,13 @@ export default function LandingPage() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-primary mb-8 tracking-wide uppercase">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            FitFlow CRM v2.0 is Live
+            FitFlow CRM is Live
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-foreground">
             The AI-Native CRM <br /> for Fitness Studios.
           </h1>
-          
+
           <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl leading-relaxed">
             Ingest member data, predict churn risk, and deploy automated WhatsApp and SMS campaigns—all from a single, intelligent interface.
           </p>
@@ -77,7 +77,7 @@ export default function LandingPage() {
 
       {/* CRM Features Dashboard Mockup */}
       <div className="relative max-w-6xl mx-auto px-6 z-10 pb-32">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
@@ -129,7 +129,7 @@ export default function LandingPage() {
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">Powerful infrastructure to manage your audience, completely automated by AI.</p>
           </div>
 
-          <motion.div 
+          <motion.div
             variants={container as any}
             initial="hidden"
             whileInView="show"
@@ -156,9 +156,9 @@ export default function LandingPage() {
               <h3 className="text-2xl font-bold mb-3">3. Dispatch Communications</h3>
               <p className="text-muted-foreground mb-6">Dispatch tailored, personalized messages to your chosen audiences through integrated channel services.</p>
               <div className="flex gap-4">
-                <div className="flex items-center gap-2 text-sm font-medium bg-secondary px-3 py-1.5 rounded-md border border-border"><Smartphone className="w-4 h-4"/> WhatsApp</div>
-                <div className="flex items-center gap-2 text-sm font-medium bg-secondary px-3 py-1.5 rounded-md border border-border"><MessageSquare className="w-4 h-4"/> SMS</div>
-                <div className="flex items-center gap-2 text-sm font-medium bg-secondary px-3 py-1.5 rounded-md border border-border"><Mail className="w-4 h-4"/> Email</div>
+                <div className="flex items-center gap-2 text-sm font-medium bg-secondary px-3 py-1.5 rounded-md border border-border"><Smartphone className="w-4 h-4" /> WhatsApp</div>
+                <div className="flex items-center gap-2 text-sm font-medium bg-secondary px-3 py-1.5 rounded-md border border-border"><MessageSquare className="w-4 h-4" /> SMS</div>
+                <div className="flex items-center gap-2 text-sm font-medium bg-secondary px-3 py-1.5 rounded-md border border-border"><Mail className="w-4 h-4" /> Email</div>
               </div>
             </motion.div>
 

@@ -17,7 +17,11 @@ async def reset_db():
             
     if not uri:
         uri = "mongodb://localhost:27017"
-    client = AsyncIOMotorClient(uri)
+    import certifi
+    if "mongodb+srv" in uri or "ssl=true" in uri.lower() or "tls=true" in uri.lower():
+        client = AsyncIOMotorClient(uri, tlsCAFile=certifi.where())
+    else:
+        client = AsyncIOMotorClient(uri)
     db = client.xeno_crm
     
     print("Dropping collections...")

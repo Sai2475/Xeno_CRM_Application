@@ -38,7 +38,8 @@ export default function Dashboard() {
   useEffect(() => {
     loadData()
 
-    const ws = new WebSocket('ws://127.0.0.1:8000/ws/dashboard')
+    const wsUrlBase = process.env.NEXT_PUBLIC_WS_URL || "ws://127.0.0.1:8000"
+    const ws = new WebSocket(`${wsUrlBase}/ws/dashboard`)
     
     ws.onmessage = (event) => {
       const payload = JSON.parse(event.data)

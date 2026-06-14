@@ -44,7 +44,8 @@ export default function CampaignsHub() {
         return;
       })
 
-    const newWs = new WebSocket(`ws://127.0.0.1:8000/ws/campaigns/${id}`)
+    const wsUrlBase = process.env.NEXT_PUBLIC_WS_URL || "ws://127.0.0.1:8000"
+    const newWs = new WebSocket(`${wsUrlBase}/ws/campaigns/${id}`)
     newWs.onmessage = (event) => {
       const payload = JSON.parse(event.data)
       if (payload.event === "status_update") {

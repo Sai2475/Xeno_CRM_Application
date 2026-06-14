@@ -12,7 +12,7 @@ def generate_mongo_query(query: str) -> dict:
     prompt = f"""
     Convert the following natural language query into a MongoDB filter object for FitFlow, a Gym CRM.
     Available fields in customers collection: 
-    - membership_type (string: "Basic", "Premium", "VIP")
+    - membership_type (string)
     - last_visit_date (string, ISO format)
     - classes_attended (int)
     - favorite_class (string: e.g. "Yoga", "CrossFit", "HIIT")
@@ -25,10 +25,10 @@ def generate_mongo_query(query: str) -> dict:
     Example Natural Language: "Show me members at risk of churning"
     Example MongoDB Query: {{"churn_risk_score": {{"$gte": 70}}}}
 
-    Example Natural Language: "VIP members who love CrossFit"
-    Example MongoDB Query: {{"membership_type": "VIP", "favorite_class": "CrossFit"}}
+    Example Natural Language: "Gold members who love CrossFit"
+    Example MongoDB Query: {{"membership_type": "Gold", "favorite_class": "CrossFit"}}
     
-    STRICT RULE: "VIP" MUST map to {{"membership_type": "VIP"}}. "Premium" MUST map to {{"membership_type": "Premium"}}. DO NOT use class attendance to define membership tiers.
+    STRICT RULE: Match exactly what the user asks for membership tiers. DO NOT use class attendance to define membership tiers.
     
     Return ONLY valid JSON.
     
@@ -126,8 +126,8 @@ def chat_with_agent(message: str, db_context: str = "") -> str:
     Tone: Motivational, Health-focused, Urgent (for class spots), Personal (use names, favorite classes). Never use generic salesy terms.
     
     STRICT RULE 1: NEVER hallucinate or invent member names. ONLY use the actual names provided in the Live Database Context below.
-    STRICT RULE 2: NEVER invent membership tiers (e.g. "Standard"). The only valid tiers are Basic, Premium, and VIP.
-    STRICT RULE 3: "VIP" is strictly defined by membership_type == "VIP", not by class attendance.
+    STRICT RULE 2: Match exactly what the user asks for membership tiers.
+    STRICT RULE 3: Do not use class attendance to define membership tiers unless explicitly asked.
     STRICT RULE 4: Answer naturally and directly. DO NOT say "Based on the live database context..." or "The query returned...". Just state the facts confidently as if you inherently know them.
     STRICT RULE 5: If the user asks "Who are..." or "Find members...", output a structured list of the top members using exactly this format (do not hallucinate stats, use exact stats provided!):
     Top Members:

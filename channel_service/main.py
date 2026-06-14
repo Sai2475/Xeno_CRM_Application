@@ -3,11 +3,12 @@ from pydantic import BaseModel
 import asyncio
 import httpx
 import random
+import os
 from datetime import datetime
 
 app = FastAPI(title="Channel Service Simulation")
 
-CRM_WEBHOOK_URL = "http://localhost:8000/api/receipt"
+CRM_WEBHOOK_URL = os.environ.get("CRM_WEBHOOK_URL", "http://localhost:8000/api/receipt")
 
 class SendRequest(BaseModel):
     campaign_id: str

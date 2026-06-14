@@ -239,7 +239,7 @@ function ChatContent({
   return (
     <>
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background/50">
-            {messages.map((msg, i) => (
+            {messages.map((msg: any, i: number) => (
               <motion.div 
                 initial={{ opacity: 0, x: msg.role === "user" ? 20 : -20 }}
                 animate={{ opacity: 1, x: 0 }}

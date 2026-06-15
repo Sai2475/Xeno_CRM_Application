@@ -9,7 +9,7 @@
 
 ---
 
-## ⚠️ Important Note for Evaluators (Cloud Hosting)
+## ⚠️ Important Note (Cloud Hosting)
 
 This project utilizes a completely decoupled, microservice-based architecture deployed across **Vercel** and **Render**. 
 

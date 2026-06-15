@@ -18,7 +18,7 @@ Because the backend services are hosted on **Render's Free Tier**, the container
 **When you first open the live Vercel link, please allow approximately 45–60 seconds for the backend services to "wake up" and spin back up.** Once the initial cold start is complete, the application, the WebSockets, and the AI generation will run at full speed.
 
 ### Live Production Links
-* **Live Application (Vercel):** *[Insert Your Vercel Link Here]*
+* **Live Application (Vercel): https://xeno-crm-application.vercel.app/
 * **Core API (Render):** https://xeno-backend-ti5a.onrender.com/docs
 * **Channel Simulator Microservice (Render):** https://xeno-channel-service-5zh6.onrender.com/docs
 

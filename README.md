@@ -47,7 +47,7 @@ FitFlow is designed with enterprise-grade system design principles in mind:
 
 ## 🚀 How to Use the App
 
-1. **Data Ingestion:** Navigate to the `Data Ingestion` tab and upload your gym members CSV. The backend will parse the data and categorize members by health score.
+1. **Data Ingestion:** Navigate to the `Data Ingestion` tab and upload one of the provided sample CSVs (`gym_customers_sample.csv` or `gym_customers_100_samples.csv` included in the root of this repository). The backend will parse the realistic dataset and categorize members by health score and churn risk.
 2. **Dashboard Analytics:** View live executive metrics, including Active Members, High Churn Risk, and Renewals Due.
 3. **Aura AI (The Magic):** Open the chat sidebar. Ask the AI to segment your audience (e.g., *"Find all basic members and draft a win-back campaign"*). The AI will query the database and automatically generate A/B tested SMS variants.
 4. **Launch & Track:** Select a variant and hit Launch. Go to the **Campaign Hub** to watch the real-time simulation as the Channel Service fires live webhooks back to the dashboard!

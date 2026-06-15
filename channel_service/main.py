@@ -8,7 +8,7 @@ from datetime import datetime
 
 app = FastAPI(title="Channel Service Simulation")
 
-CRM_WEBHOOK_URL = os.environ.get("CRM_WEBHOOK_URL", "http://localhost:8000/api/receipt")
+CRM_WEBHOOK_URL = os.environ.get("CRM_WEBHOOK_URL", "http://localhost:8000/api/receipt").strip()
 
 class SendRequest(BaseModel):
     campaign_id: str
@@ -19,48 +19,56 @@ class SendRequest(BaseModel):
 
 async def simulate_message_lifecycle(campaign_id: str, customer_id: str):
     async with httpx.AsyncClient() as client:
-        # Simulate Network Delay -> Delivered
-        await asyncio.sleep(random.uniform(0.5, 2.0))
-        await client.post(CRM_WEBHOOK_URL, json={
-            "event_id": f"{campaign_id}_{customer_id}_delivered",
-            "campaign_id": campaign_id,
-            "customer_id": customer_id,
-            "status": "delivered",
-            "timestamp": datetime.now().isoformat()
-        })
-        
-        # 80% chance to Open
-        if random.random() < 0.8:
-            await asyncio.sleep(random.uniform(1.0, 5.0))
-            await client.post(CRM_WEBHOOK_URL, json={
-                "event_id": f"{campaign_id}_{customer_id}_opened",
+        try:
+            # Simulate Network Delay -> Delivered
+            await asyncio.sleep(random.uniform(0.5, 2.0))
+            payload = {
+                "event_id": f"{campaign_id}_{customer_id}_delivered",
                 "campaign_id": campaign_id,
                 "customer_id": customer_id,
-                "status": "opened",
+                "status": "delivered",
                 "timestamp": datetime.now().isoformat()
-            })
+            }
+            resp = await client.post(CRM_WEBHOOK_URL, json=payload)
+            print(f"Webhook Delivered response: {resp.status_code} {resp.text}")
             
-            # 40% chance to Click
-            if random.random() < 0.4:
-                await asyncio.sleep(random.uniform(1.0, 4.0))
-                await client.post(CRM_WEBHOOK_URL, json={
-                    "event_id": f"{campaign_id}_{customer_id}_clicked",
+            # 80% chance to Open
+            if random.random() < 0.8:
+                await asyncio.sleep(random.uniform(1.0, 5.0))
+                resp = await client.post(CRM_WEBHOOK_URL, json={
+                    "event_id": f"{campaign_id}_{customer_id}_opened",
                     "campaign_id": campaign_id,
                     "customer_id": customer_id,
-                    "status": "clicked",
+                    "status": "opened",
                     "timestamp": datetime.now().isoformat()
                 })
+                print(f"Webhook Opened response: {resp.status_code}")
                 
-                # 20% chance to Convert
-                if random.random() < 0.2:
-                    await asyncio.sleep(random.uniform(2.0, 10.0))
-                    await client.post(CRM_WEBHOOK_URL, json={
-                        "event_id": f"{campaign_id}_{customer_id}_converted",
+                # 30% chance to Click
+                if random.random() < 0.3:
+                    await asyncio.sleep(random.uniform(0.5, 3.0))
+                    resp = await client.post(CRM_WEBHOOK_URL, json={
+                        "event_id": f"{campaign_id}_{customer_id}_clicked",
                         "campaign_id": campaign_id,
                         "customer_id": customer_id,
-                        "status": "converted",
+                        "status": "clicked",
                         "timestamp": datetime.now().isoformat()
                     })
+                    print(f"Webhook Clicked response: {resp.status_code}")
+                    
+                    # 10% chance to Convert (Purchase / Class Booking)
+                    if random.random() < 0.1:
+                        await asyncio.sleep(random.uniform(1.0, 10.0))
+                        resp = await client.post(CRM_WEBHOOK_URL, json={
+                            "event_id": f"{campaign_id}_{customer_id}_converted",
+                            "campaign_id": campaign_id,
+                            "customer_id": customer_id,
+                            "status": "converted",
+                            "timestamp": datetime.now().isoformat()
+                        })
+                        print(f"Webhook Converted response: {resp.status_code}")
+        except Exception as e:
+            print(f"Channel Simulator failed to send webhook: {e}")
 
 
 @app.post("/send")

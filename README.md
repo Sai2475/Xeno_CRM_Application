@@ -5,7 +5,7 @@
 ![MongoDB](https://img.shields.io/badge/Database-MongoDB_Motor-47A248)
 ![Groq](https://img.shields.io/badge/AI-Groq_Llama_3-F55036)
 
-**FitFlow** is an AI-native CRM specifically engineered for boutique fitness gyms. Instead of acting as a static address book, FitFlow actively ingests member data (class attendance, join dates, last visit), predicts churn risk, and uses an embedded LLM agent to instantly draft, segment, and launch personalized A/B tested win-back campaigns.
+**FitFlow** is an AI-native CRM specifically engineered for fitness gyms and centers. Instead of acting as a static address book, FitFlow actively ingests member data (class attendance, join dates, last visit), predicts churn risk, and uses an embedded LLM agent to instantly draft, segment, and launch personalized A/B tested win-back campaigns.
 
 ---
 

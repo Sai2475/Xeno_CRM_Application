@@ -17,13 +17,13 @@ from backend import ai_service as ai
 
 app = FastAPI(title="Xeno AI Command Center")
 
-@app.get("/api/test-db")
-async def test_db():
-    try:
-        await db.command("ping")
-        return {"status": "connected"}
-    except Exception as e:
-        return {"status": "error", "message": str(e), "uri": db.client.options.pool_options.max_pool_size}
+@app.get("/api/test-events")
+async def test_events():
+    import os
+    return {
+        "uri": os.environ.get("MONGODB_URI", "NOT_SET"),
+        "channel_url": os.environ.get("CHANNEL_SERVICE_URL", "NOT_SET")
+    }
 
 app.add_middleware(
     CORSMiddleware,
